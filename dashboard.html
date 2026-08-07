@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Apple Pricing Intelligence · 2020–2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#FBFBFD;
+    --panel:#FFFFFF;
+    --ink:#1D1D1F;
+    --ink-soft:#6E6E73;
+    --line:#E5E5EA;
+    --amazon:#FF9900;
+    --amazon-soft:#FFE6BF;
+    --flipkart:#2874F0;
+    --flipkart-soft:#D9E6FE;
+    --green:#1DB954;
+    --red:#E0393E;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{ font-family: ui-monospace, "SF Mono", "Roboto Mono", Menlo, monospace; }
+
+  /* ---------- Header ---------- */
+  header{
+    padding:56px 5vw 28px;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, #FFFFFF 0%, var(--bg) 100%);
+  }
+  .eyebrow{
+    font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-soft); font-weight:600; margin-bottom:10px;
+  }
+  h1{
+    font-size:clamp(32px, 4.2vw, 52px);
+    line-height:1.05;
+    margin:0 0 12px;
+    font-weight:700;
+    letter-spacing:-0.02em;
+  }
+  h1 span.acc-a{color:var(--amazon);}
+  h1 span.acc-f{color:var(--flipkart);}
+  .sub{
+    font-size:16px; color:var(--ink-soft); max-width:640px; line-height:1.5;
+  }
+
+  /* ---------- Ticker (signature element) ---------- */
+  .ticker-wrap{
+    background:var(--ink);
+    overflow:hidden;
+    white-space:nowrap;
+    border-bottom:1px solid var(--line);
+  }
+  .ticker{
+    display:inline-block;
+    padding:10px 0;
+    animation:scroll 42s linear infinite;
+  }
+  .ticker span{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-right:44px;
+    font-size:13px;
+    color:#F5F5F7;
+  }
+  .ticker .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+  .ticker .pct{font-weight:700;}
+  @keyframes scroll{
+    0%{ transform:translateX(0); }
+    100%{ transform:translateX(-50%); }
+  }
+
+  /* ---------- Layout ---------- */
+  main{ padding:40px 5vw 80px; max-width:1400px; margin:0 auto; }
+
+  .kpi-row{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+    gap:14px;
+    margin-bottom:40px;
+  }
+  .kpi{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px 18px;
+  }
+  .kpi .val{
+    font-size:28px; font-weight:700; letter-spacing:-0.01em;
+  }
+  .kpi .lbl{
+    font-size:12px; color:var(--ink-soft); margin-top:4px; text-transform:uppercase; letter-spacing:.06em;
+  }
+
+  .section-title{
+    font-size:13px; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--ink-soft); font-weight:700; margin:44px 0 16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-title::after{
+    content:""; flex:1; height:1px; background:var(--line);
+  }
+
+  .grid-2{ display:grid; grid-template-columns:1.3fr 1fr; gap:18px; }
+  .grid-3{ display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; }
+  @media (max-width:900px){ .grid-2, .grid-3{ grid-template-columns:1fr; } }
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:22px 22px 14px;
+  }
+  .card h3{
+    margin:0 0 2px; font-size:15px; font-weight:700;
+  }
+  .card p.note{
+    margin:0 0 14px; font-size:12.5px; color:var(--ink-soft);
+  }
+  .card .chart-box{ position:relative; height:260px; }
+  .card .chart-box.tall{ height:320px; }
+
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  th{
+    text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--ink-soft); font-weight:600; padding:8px 6px; border-bottom:1px solid var(--line);
+  }
+  td{ padding:9px 6px; border-bottom:1px solid #F1F1F3; }
+  tr:last-child td{ border-bottom:none; }
+  .tag{
+    display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600;
+  }
+  .tag.amazon{ background:var(--amazon-soft); color:#8A5200; }
+  .tag.flipkart{ background:var(--flipkart-soft); color:#1849A0; }
+
+  .legend-pill{
+    display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-soft); margin-right:16px;
+  }
+  .legend-pill i{ width:9px; height:9px; border-radius:2px; display:inline-block; }
+
+  footer{
+    padding:30px 5vw 60px; color:var(--ink-soft); font-size:12.5px; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+  footer a{ color:var(--ink-soft); }
+
+  @media (prefers-reduced-motion: reduce){
+    .ticker{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Portfolio Analytics Project · Vidhi Mishra</div>
+  <h1>Apple Pricing Intelligence<br/><span class="acc-a">Amazon</span> vs <span class="acc-f">Flipkart</span>, India</h1>
+  <div class="sub">Six years of daily price tracking (2020–2026) across iPhone, iPad, Mac and Watch — analyzing how discounting behaves by category, platform, and sale event.</div>
+</header>
+
+<div class="ticker-wrap">
+  <div class="ticker" id="ticker"></div>
+</div>
+
+<main>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="val mono" id="k-records">–</div><div class="lbl">Price records tracked</div></div>
+    <div class="kpi"><div class="val mono" id="k-models">–</div><div class="lbl">Product models</div></div>
+    <div class="kpi"><div class="val mono" id="k-avgdisc">–</div><div class="lbl">Avg. discount, all-time</div></div>
+    <div class="kpi"><div class="val mono" id="k-avgprice">–</div><div class="lbl">Avg. current price (USD)</div></div>
+    <div class="kpi"><div class="val mono" id="k-eventdisc">–</div><div class="lbl">Avg. discount, sale events</div></div>
+    <div class="kpi"><div class="val mono" id="k-normaldisc">–</div><div class="lbl">Avg. discount, normal days</div></div>
+  </div>
+
+  <div class="section-title">Pricing trend</div>
+  <div class="card">
+    <h3>Average selling price by category</h3>
+    <p class="note">Monthly average of Current_Price_USD, Sep 2020 – Jul 2026</p>
+    <div class="chart-box tall"><canvas id="chartTrend"></canvas></div>
+  </div>
+
+  <div class="section-title">Discount behavior</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Average discount % by category</h3>
+      <p class="note">Watch and iPad discount furthest on average; Mac holds price best</p>
+      <div class="chart-box"><canvas id="chartCategory"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Sale event impact</h3>
+      <p class="note">Big Billion Days drives the steepest average markdowns</p>
+      <div class="chart-box"><canvas id="chartEvent"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Platform comparison</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Amazon vs Flipkart — avg. discount %</h3>
+      <p class="note">Platforms discount almost identically on average</p>
+      <div class="chart-box"><canvas id="chartPlatform"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Stock status by platform</h3>
+      <p class="note">Share of records In Stock / Low Stock / Out of Stock</p>
+      <div class="chart-box"><canvas id="chartStock"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Deeper cuts</div>
+  <div class="grid-3">
+    <div class="card">
+      <h3>Rating vs. discount depth</h3>
+      <p class="note">Heavier discounts skew toward slightly lower ratings</p>
+      <div class="chart-box"><canvas id="chartRating"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>New vs. Renewed pricing</h3>
+      <p class="note">Avg. current price (USD) by condition</p>
+      <div class="chart-box"><canvas id="chartCondition"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Out-of-stock rate</h3>
+      <p class="note">Sale events run hotter — and sell out more</p>
+      <div class="chart-box"><canvas id="chartOOS"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Record book</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Deepest single-day discounts</h3>
+      <p class="note">Top 8 steepest markdowns recorded in the dataset</p>
+      <table>
+        <thead><tr><th>Date</th><th>Platform</th><th>Model</th><th>Discount</th><th>Event</th></tr></thead>
+        <tbody id="tblDeepest"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Most-reviewed models</h3>
+      <p class="note">Top 8 by cumulative review count</p>
+      <table>
+        <thead><tr><th>Model</th><th>Category</th><th>Reviews</th></tr></thead>
+        <tbody id="tblTop"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div>Data: apple_products_pricing_2020_2026.csv · 80,000 daily price records, Amazon &amp; Flipkart India</div>
+  <div>Built with Python (pandas), SQL and Chart.js</div>
+</footer>
+
+<script>
+const DATA = {"kpis": {"total_records": 80000, "date_range": ["2020-09-19", "2026-07-31"], "avg_discount": 21.4, "avg_price_usd": 783.0, "num_models": 31, "sale_event_avg_discount": 33.7, "normal_avg_discount": 20.3}, "discount_by_category": {"labels": ["Watch", "iPad", "iPhone", "Mac"], "values": [26.27, 26.19, 19.57, 15.43]}, "discount_by_platform": {"labels": ["Amazon", "Flipkart"], "values": [21.52, 21.32]}, "price_trend": {"labels": ["2020-09", "2020-10", "2020-11", "2020-12", "2021-01", "2021-02", "2021-03", "2021-04", "2021-05", "2021-06", "2021-07", "2021-08", "2021-09", "2021-10", "2021-11", "2021-12", "2022-01", "2022-02", "2022-03", "2022-04", "2022-05", "2022-06", "2022-07", "2022-08", "2022-09", "2022-10", "2022-11", "2022-12", "2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", "2023-07", "2023-08", "2023-09", "2023-10", "2023-11", "2023-12", "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07"], "series": {"Watch": [417.2, 368.4, 364.5, 407.8, 394.3, 407.7, 408.6, 405.6, 407.3, 398.2, 394.5, 412.1, 379.9, 329.3, 338.0, 383.4, 370.0, 360.9, 360.8, 363.0, 369.3, 355.9, 347.2, 356.7, 419.9, 441.0, 422.2, 471.6, 483.2, 445.7, 430.2, 452.5, 438.5, 463.2, 431.4, 472.3, 469.6, 403.1, 442.6, 463.1, 476.4, 454.2, 463.7, 470.8, 448.6, 477.7, 464.2, 456.2, 426.6, 367.2, 387.7, 398.0, 395.7, 405.7, 416.6, 409.9, 400.5, 384.7, 401.6, 403.2, 380.6, 313.8, 326.2, 329.2, 337.0, 351.2, 333.4, 337.8, 335.4, 337.6, 325.8], "iPad": [565.9, 517.2, 556.4, 567.8, 557.2, 563.9, 568.0, 604.4, 645.9, 658.5, 693.4, 640.3, 513.5, 529.2, 506.7, 526.2, 508.2, 513.7, 500.2, 520.8, 500.4, 487.7, 493.2, 488.9, 483.9, 585.6, 628.6, 600.9, 615.5, 635.2, 549.4, 580.7, 568.8, 556.9, 560.3, 613.1, 527.6, 512.6, 570.4, 545.1, 513.5, 500.8, 534.1, 622.8, 652.6, 630.1, 609.8, 659.2, 591.3, 589.9, 631.5, 613.1, 605.7, 598.1, 602.2, 585.1, 558.7, 585.4, 585.8, 586.0, 543.7, 534.4, 591.3, 568.1, 573.5, 586.1, 568.3, 558.1, 551.8, 520.6], "iPhone": [935.6, 805.8, 848.3, 850.9, 834.8, 843.0, 835.5, 850.0, 828.6, 832.1, 824.8, 887.9, 826.9, 823.5, 860.4, 869.3, 811.9, 871.5, 858.5, 839.7, 885.3, 854.3, 855.8, 855.7, 737.5, 755.4, 783.3, 806.7, 807.4, 812.2, 798.1, 796.9, 810.9, 787.8, 798.5, 813.3, 718.8, 769.1, 793.4, 787.3, 812.3, 775.5, 782.7, 773.8, 791.8, 765.5, 780.0, 789.0, 690.9, 733.4, 772.5, 774.5, 769.3, 768.1, 764.4, 775.7, 763.5, 766.9, 770.8, 753.1, 640.6, 686.8, 724.8, 716.5, 736.3, 711.2, 714.1, 717.6, 716.6, 706.4], "Mac": [831.5, 953.3, 924.7, 908.3, 929.0, 969.2, 930.4, 951.2, 947.7, 934.2, 944.8, 1053.5, 1426.9, 1418.1, 1307.0, 1383.9, 1391.3, 1464.7, 1377.5, 1425.1, 1388.6, 1282.0, 1290.4, 1191.8, 1211.0, 1271.1, 1431.3, 1406.9, 1426.6, 1473.1, 1462.9, 1438.3, 1405.6, 1408.2, 1435.9, 1272.9, 1446.8, 1531.5, 1492.1, 1444.6, 1354.7, 1362.7, 1387.0, 1387.9, 1329.4, 1377.9, 1375.1, 1249.9, 1387.8, 1457.0, 1487.2, 1459.2, 1462.8, 1452.2, 1424.7, 1432.2, 1424.3, 1417.5, 1432.4, 1332.2, 1304.0, 1390.2, 1402.3, 1361.8, 1354.4, 1367.0, 1389.9, 1355.3, 1313.3]}}, "discount_by_event": {"labels": ["Big Billion Days", "Prime Day", "Great Indian Festival", "Black Friday"], "values": [37.02, 34.44, 33.45, 31.46]}, "rating_by_discount_bucket": {"labels": ["Price Increase", "No Discount", "Low (0-15%)", "Medium (15-30%)", "High (30%+)"], "values": [4.55, 4.54, 4.55, 4.4, 4.37]}, "stock_by_platform": {"labels": ["Amazon", "Flipkart"], "statuses": ["In Stock", "Low Stock", "Out of Stock"], "series": {"In Stock": [68.9, 68.7], "Low Stock": [14.4, 14.3], "Out of Stock": [16.7, 17.0]}}, "new_vs_renewed": {"labels": ["Mac", "Watch", "iPad", "iPhone"], "New": [1465.6, 422.9, 608.5, 802.9], "Renewed": [1134.1, 327.8, 467.6, 623.3]}, "top_models": [{"Model_Name": "iPhone 12 Pro 128GB", "Product_Category": "iPhone", "Reviews_Count": 9695181}, {"Model_Name": "iPad Air (4th Gen) 64GB", "Product_Category": "iPad", "Reviews_Count": 9610122}, {"Model_Name": "Apple Watch Series 6 (44mm)", "Product_Category": "Watch", "Reviews_Count": 9432985}, {"Model_Name": "MacBook Air M1 256GB", "Product_Category": "Mac", "Reviews_Count": 9408082}, {"Model_Name": "iPhone 12 64GB", "Product_Category": "iPhone", "Reviews_Count": 9281382}, {"Model_Name": "iPad Pro 11-inch (M1) 128GB", "Product_Category": "iPad", "Reviews_Count": 8765377}, {"Model_Name": "Apple Watch Series 7 (45mm)", "Product_Category": "Watch", "Reviews_Count": 8006933}, {"Model_Name": "iPad (9th Gen) 64GB", "Product_Category": "iPad", "Reviews_Count": 7942664}], "deepest_discounts": [{"Date": "2025-10-10", "Platform": "Flipkart", "Model_Name": "iPhone 12 Pro 128GB", "Discount_Pct": 73.1, "Sale_Event": "Big Billion Days"}, {"Date": "2025-10-15", "Platform": "Flipkart", "Model_Name": "iPhone 12 Pro 128GB", "Discount_Pct": 72.39999999999999, "Sale_Event": "Big Billion Days"}, {"Date": "2025-10-11", "Platform": "Flipkart", "Model_Name": "iPhone 12 64GB", "Discount_Pct": 71.6, "Sale_Event": "Big Billion Days"}, {"Date": "2025-10-02", "Platform": "Flipkart", "Model_Name": "iPhone 12 64GB", "Discount_Pct": 71.39999999999999, "Sale_Event": "Big Billion Days"}, {"Date": "2025-10-07", "Platform": "Flipkart", "Model_Name": "iPhone 12 64GB", "Discount_Pct": 70.6, "Sale_Event": "Big Billion Days"}, {"Date": "2025-10-02", "Platform": "Flipkart", "Model_Name": "iPhone 13 Pro Max 256GB", "Discount_Pct": 70.5, "Sale_Event": "Big Billion Days"}, {"Date": "2025-10-06", "Platform": "Flipkart", "Model_Name": "iPhone 14 128GB", "Discount_Pct": 70.3, "Sale_Event": "Big Billion Days"}, {"Date": "2025-10-09", "Platform": "Flipkart", "Model_Name": "iPhone 12 Pro 128GB", "Discount_Pct": 69.89999999999999, "Sale_Event": "Big Billion Days"}], "oos_rate": {"Normal": 16.4, "Sale Event": 21.6}};
+
+// ---------- KPI strip ----------
+document.getElementById('k-records').textContent = DATA.kpis.total_records.toLocaleString();
+document.getElementById('k-models').textContent = DATA.kpis.num_models;
+document.getElementById('k-avgdisc').textContent = DATA.kpis.avg_discount + '%';
+document.getElementById('k-avgprice').textContent = '$' + DATA.kpis.avg_price_usd.toLocaleString();
+document.getElementById('k-eventdisc').textContent = DATA.kpis.sale_event_avg_discount + '%';
+document.getElementById('k-normaldisc').textContent = DATA.kpis.normal_avg_discount + '%';
+
+// ---------- Ticker ----------
+const tickerEl = document.getElementById('ticker');
+const tickerItems = DATA.deepest_discounts.map(d =>
+  `<span><i class="dot"></i>${d.Platform} · ${d.Model_Name} <span class="pct">-${d.Discount_Pct.toFixed(1)}%</span> during ${d.Sale_Event}</span>`
+).join('');
+tickerEl.innerHTML = tickerItems + tickerItems; // duplicate for seamless loop
+
+// ---------- Shared chart defaults ----------
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif";
+Chart.defaults.color = '#6E6E73';
+Chart.defaults.borderColor = '#E5E5EA';
+
+const AMAZON = '#FF9900', FLIPKART = '#2874F0', INK='#1D1D1F', GREEN='#1DB954', RED='#E0393E';
+const CATCOLORS = ['#1D1D1F','#6E6E73','#FF9900','#2874F0'];
+
+// Price trend (line)
+new Chart(document.getElementById('chartTrend'), {
+  type: 'line',
+  data: {
+    labels: DATA.price_trend.labels,
+    datasets: Object.entries(DATA.price_trend.series).map(([name, vals], i) => ({
+      label: name, data: vals, borderColor: CATCOLORS[i % CATCOLORS.length],
+      backgroundColor: 'transparent', tension: 0.25, pointRadius: 0, borderWidth: 2.2
+    }))
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    interaction:{ mode:'index', intersect:false },
+    plugins:{ legend:{ position:'top', align:'end', labels:{ boxWidth:9, boxHeight:9, usePointStyle:true } } },
+    scales:{
+      x:{ ticks:{ maxTicksLimit:10 }, grid:{ display:false } },
+      y:{ ticks:{ callback:v=>'$'+v }, grid:{ color:'#F1F1F3' } }
+    }
+  }
+});
+
+// Discount by category (bar)
+new Chart(document.getElementById('chartCategory'), {
+  type:'bar',
+  data:{ labels:DATA.discount_by_category.labels, datasets:[{
+    data:DATA.discount_by_category.values, backgroundColor: CATCOLORS, borderRadius:6, maxBarThickness:46
+  }]},
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>c.parsed.y+'%'}} },
+    scales:{ x:{ grid:{display:false} }, y:{ ticks:{callback:v=>v+'%'}, grid:{color:'#F1F1F3'} } }
+  }
+});
+
+// Sale event impact (bar, purple->amazon/flipkart neutral ink scale)
+new Chart(document.getElementById('chartEvent'), {
+  type:'bar',
+  data:{ labels:DATA.discount_by_event.labels, datasets:[{
+    data:DATA.discount_by_event.values, backgroundColor:'#2874F0', borderRadius:6, maxBarThickness:46
+  }]},
+  options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>c.parsed.x+'%'}} },
+    scales:{ x:{ ticks:{callback:v=>v+'%'}, grid:{color:'#F1F1F3'} }, y:{ grid:{display:false} } }
+  }
+});
+
+// Platform comparison
+new Chart(document.getElementById('chartPlatform'), {
+  type:'bar',
+  data:{ labels:DATA.discount_by_platform.labels, datasets:[{
+    data:DATA.discount_by_platform.values, backgroundColor:[AMAZON, FLIPKART], borderRadius:6, maxBarThickness:70
+  }]},
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>c.parsed.y+'%'}} },
+    scales:{ x:{ grid:{display:false} }, y:{ ticks:{callback:v=>v+'%'}, grid:{color:'#F1F1F3'} } }
+  }
+});
+
+// Stock status stacked bar
+new Chart(document.getElementById('chartStock'), {
+  type:'bar',
+  data:{
+    labels: DATA.stock_by_platform.labels,
+    datasets: DATA.stock_by_platform.statuses.map((s,i)=>({
+      label:s, data:DATA.stock_by_platform.series[s],
+      backgroundColor:[GREEN,'#FFC24B',RED][i], borderRadius:4, maxBarThickness:60
+    }))
+  },
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ position:'top', align:'end', labels:{boxWidth:9, boxHeight:9, usePointStyle:true} } },
+    scales:{ x:{ stacked:true, grid:{display:false} }, y:{ stacked:true, ticks:{callback:v=>v+'%'}, grid:{color:'#F1F1F3'} } }
+  }
+});
+
+// Rating vs discount bucket
+new Chart(document.getElementById('chartRating'), {
+  type:'bar',
+  data:{ labels:DATA.rating_by_discount_bucket.labels, datasets:[{
+    data:DATA.rating_by_discount_bucket.values, backgroundColor:'#1D1D1F', borderRadius:6, maxBarThickness:36
+  }]},
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{ grid:{display:false}, ticks:{ font:{size:10} } },
+      y:{ min:4.2, max:4.6, grid:{color:'#F1F1F3'} }
+    }
+  }
+});
+
+// New vs renewed grouped bar
+new Chart(document.getElementById('chartCondition'), {
+  type:'bar',
+  data:{
+    labels: DATA.new_vs_renewed.labels,
+    datasets:[
+      { label:'New', data:DATA.new_vs_renewed.New, backgroundColor:'#1D1D1F', borderRadius:5, maxBarThickness:26 },
+      { label:'Renewed', data:DATA.new_vs_renewed.Renewed, backgroundColor:'#B8B8BD', borderRadius:5, maxBarThickness:26 }
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ position:'top', align:'end', labels:{boxWidth:9, boxHeight:9, usePointStyle:true} } },
+    scales:{ x:{ grid:{display:false} }, y:{ ticks:{callback:v=>'$'+v}, grid:{color:'#F1F1F3'} } }
+  }
+});
+
+// Out of stock donut
+new Chart(document.getElementById('chartOOS'), {
+  type:'doughnut',
+  data:{ labels:['Normal days','Sale events'], datasets:[{
+    data:[DATA.oos_rate.Normal, DATA.oos_rate['Sale Event']], backgroundColor:['#B8B8BD', RED], borderWidth:0
+  }]},
+  options:{ responsive:true, maintainAspectRatio:false, cutout:'68%',
+    plugins:{ legend:{ position:'bottom', labels:{boxWidth:9, boxHeight:9, usePointStyle:true} },
+      tooltip:{ callbacks:{ label:c=>c.label+': '+c.parsed+'% out of stock' } } }
+  }
+});
+
+// ---------- Tables ----------
+const tblDeepest = document.getElementById('tblDeepest');
+tblDeepest.innerHTML = DATA.deepest_discounts.map(d => `
+  <tr>
+    <td class="mono">${d.Date}</td>
+    <td><span class="tag ${d.Platform.toLowerCase()}">${d.Platform}</span></td>
+    <td>${d.Model_Name}</td>
+    <td class="mono" style="color:${RED}; font-weight:700;">-${d.Discount_Pct.toFixed(1)}%</td>
+    <td>${d.Sale_Event}</td>
+  </tr>`).join('');
+
+const tblTop = document.getElementById('tblTop');
+tblTop.innerHTML = DATA.top_models.map(d => `
+  <tr>
+    <td>${d.Model_Name}</td>
+    <td>${d.Product_Category}</td>
+    <td class="mono">${d.Reviews_Count.toLocaleString()}</td>
+  </tr>`).join('');
+</script>
+
+</body>
+</html>
