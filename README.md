@@ -2,6 +2,9 @@
 
 Portfolio project analyzing 6 years of daily Apple product pricing on Amazon and Flipkart India — built for the Google Data Analytics Apprenticeship application.
 
+# Live Demo
+https://vidhimishra2007.github.io/Apple-Products-Pricing-Analysis/
+
 ## Dataset
 `apple_products_pricing_2020_2026.csv` — 80,000 daily price records (Sep 2020 – Jul 2026) covering iPhone, iPad, Mac and Apple Watch across 31 models, tracked on Amazon and Flipkart India. Fields include launch/current price (USD & INR), discount %, sale event, stock status, rating, and review count.
 
