@@ -25,6 +25,7 @@ Portfolio project analyzing 6 years of daily Apple product pricing on Amazon and
 ```
 apple_products_pricing_2020_2026.csv   raw dataset
 apple_pricing_cleaned.csv              cleaned dataset
+data_dictionary.md                     metadata
 01_cleaning.py                         cleaning script
 02_eda.py                              EDA script
 charts/                                8 EDA chart images
